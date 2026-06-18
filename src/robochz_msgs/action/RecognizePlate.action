@@ -1,0 +1,60 @@
+# =====================================================
+# RecognizePlate.action
+#
+# 목적
+#   waypoint 도착 후 카메라 촬영, 번호판 검출,
+#   OCR 및 등록 차량 여부 확인을 요청한다.
+#
+# Goal 필드
+#   waypoint_id : 현재 순찰 지점 ID
+#   robot_pose  : waypoint 도착 시점의 로봇 위치
+#
+# Result 필드
+#   success       : 인식 파이프라인 성공 여부
+#   message       : 상태 또는 오류 메시지
+#   plate_text    : OCR 결과 번호판 문자열
+#   confidence    : OCR 신뢰도 (0.0 ~ 1.0)
+#   is_registered : 등록 차량 여부
+#   image_path    : 저장된 원본 이미지 경로
+#
+# Feedback 필드
+#   current_step : 현재 처리 단계
+#   progress     : 진행률 (0.0 ~ 1.0)
+#
+# Goal 예시
+#   waypoint_id: "PARKING_A_03"
+#   robot_pose:
+#     header.frame_id: "map"
+#     pose.position.x: 3.42
+#     pose.position.y: -1.15
+#
+# Result 예시
+#   success: true
+#   message: ""
+#   plate_text: "12가3456"
+#   confidence: 0.94
+#   is_registered: false
+#   image_path: "/logs/images/20260620_153122.jpg"
+#
+# 실패 예시
+#   success: false
+#   plate_text: ""
+#   confidence: 0.0
+#   image_path: "/logs/images/img001.jpg"
+#   message: "no plate detected"
+# =====================================================
+
+string waypoint_id
+geometry_msgs/PoseStamped robot_pose
+
+---
+bool success
+string message
+string plate_text
+float32 confidence
+bool is_registered
+string image_path
+
+---
+string current_step
+float32 progress

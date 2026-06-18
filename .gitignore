@@ -17,3 +17,9 @@ __pycache__/
 
 # 임시 작업 파일
 test.txt
+
+# 무거운 시각 에셋 (Fuel 다운로드 + assimp 변환물) — git 히스토리 bloat 방지.
+# collision/맵/순찰은 model.sdf inline box 로 동작하므로 .dae/텍스처 없어도 OK.
+# 복원: Distribution_Warehouse/ASSETS.md 참고.
+src/robochz_bringup/models/Distribution_Warehouse/base_visual.dae
+src/robochz_bringup/models/Distribution_Warehouse/*.jpg

@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="warehouse_test">
+    <!-- 기본 조명/바닥: Classic 기본 모델 재사용 -->
+    <include><uri>model://sun</uri></include>
+    <include><uri>model://ground_plane</uri></include>
+
+    <!-- 우리가 보려는 창고. GAZEBO_MODEL_PATH 에 ros2_ws 루트가 잡혀 있어야 찾음 -->
+    <include>
+      <uri>model://Distribution_Warehouse</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+  </world>
+</sdf>

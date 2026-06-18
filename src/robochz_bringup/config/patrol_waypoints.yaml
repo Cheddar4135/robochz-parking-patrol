@@ -1,0 +1,8 @@
+patrol_node:
+  ros__parameters:
+    use_sim_time: true
+    # A구역 순찰 waypoint — 통로 중심 y=8.0, yaw=0(+x, 우측 카메라가 아래 row 촬영)
+    # x = 6칸 중심. 리스트 3개(x/y/yaw)를 인덱스로 묶어 사용.
+    waypoints_x: [5.35, 7.95, 10.55, 13.15, 15.75, 18.35]
+    waypoints_y: [8.0, 8.0, 8.0, 8.0, 8.0, 8.0]
+    waypoints_yaw: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

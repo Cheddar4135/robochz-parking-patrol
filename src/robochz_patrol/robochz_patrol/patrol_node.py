@@ -1,3 +1,5 @@
+import math
+
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
@@ -28,6 +30,18 @@ class PatrolNode(Node):                          # ① rclpy.node.Node 상속
             RecognizePlate,
             'recognize_plate'
         )
+
+        # ── 순찰 waypoint 파라미터 로드 (config/patrol_waypoints.yaml) ──
+        # declare_parameter 기본값을 [0.0](double 리스트)로 줘야 yaml의 실수 리스트로 받아진다.
+        self.declare_parameter('waypoints_x', [0.0])
+        self.declare_parameter('waypoints_y', [0.0])
+        self.declare_parameter('waypoints_yaw', [0.0])
+        xs = self.get_parameter('waypoints_x').value
+        ys = self.get_parameter('waypoints_y').value
+        yaws = self.get_parameter('waypoints_yaw').value
+        self._waypoints = list(zip(xs, ys, yaws))   # [(x, y, yaw), ...] 인덱스로 묶음
+        self._wp_index = 0                           # 현재 순찰 중인 waypoint 인덱스
+        self.get_logger().info(f'순찰 waypoint {len(self._waypoints)}개 로드')
 
         # ── Timer 1회 트리거 패턴 ──
         # Iteration 0 테스트용:
@@ -60,20 +74,25 @@ class PatrolNode(Node):                          # ① rclpy.node.Node 상속
         
         self.get_logger().info('navigate_through_poses 액션 서버 연결 완료')
 
+        # 현재 인덱스의 순찰 waypoint
+        x, y, yaw = self._waypoints[self._wp_index]
+
         target = PoseStamped()
         target.header.stamp = self.get_clock().now().to_msg()
         target.header.frame_id = 'map'
-
-        # Iteration 0 테스트용 waypoint 1개 
-        target.pose.position.x = 1.0
-        target.pose.position.y = 1.0
-        target.pose.position.z = 0.0
-        target.pose.orientation.w = 1.0
+        target.pose.position.x = x
+        target.pose.position.y = y
+        # yaw(z축 회전만) → 쿼터니언: z = sin(yaw/2), w = cos(yaw/2)
+        target.pose.orientation.z = math.sin(yaw / 2.0)
+        target.pose.orientation.w = math.cos(yaw / 2.0)
 
         goal = NavigateThroughPoses.Goal()
         goal.poses.append(target)
 
-        self.get_logger().info('Nav2 waypoint 이동 요청 전송')
+        self.get_logger().info(
+            f'WP {self._wp_index + 1}/{len(self._waypoints)} '
+            f'({x:.2f}, {y:.2f}) 이동 요청 전송'
+        )
 
         future = self._nav_client.send_goal_async(
             goal,
@@ -127,9 +146,9 @@ class PatrolNode(Node):                          # ① rclpy.node.Node 상속
         self.get_logger().info('recognize_plate 액션 서버 연결 완료')
 
         # ── Goal 생성 ──
-        # Iteration 0에서는 TEST_01 위치의 더미 번호판 인식 요청을 보낸다.
+        # 현재 waypoint id (예: A1, A2 ...) 를 실어 monitor 기록을 의미있게.
         goal = RecognizePlate.Goal()
-        goal.waypoint_id = 'TEST_01'
+        goal.waypoint_id = f'A{self._wp_index + 1}'
 
         # robot_pose는 실제 로봇 위치를 담아야 하지만, 여기서는 더미 PoseStamped를 생성한다.
         goal.robot_pose = PoseStamped()
@@ -175,6 +194,15 @@ class PatrolNode(Node):                          # ① rclpy.node.Node 상속
             f'상태={status}, '
             f'신뢰도={result.confidence:.2f}'
         )
+
+        # ── 다음 waypoint 로 진행 (순찰 루프의 핵심) ──
+        # 인식 완료 콜백이 "다음 칸으로 이동"의 트리거. 비동기 체인이므로
+        # 콜백 안에서 직접 다음 send_navigation_goal() 을 호출한다(데드락 회피).
+        self._wp_index += 1
+        if self._wp_index < len(self._waypoints):
+            self.send_navigation_goal()
+        else:
+            self.get_logger().info('순찰 완료 — A구역 한 바퀴 종료')
 
 
 def main(args=None):

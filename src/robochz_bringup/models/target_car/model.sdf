@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="target_car">
+    <static>true</static>
+
+    <link name="body">
+      <!-- 박스 중심을 z=0.75 에 둬서 높이 1.5 박스가 바닥(z=0)에 앉음 -->
+      <pose>0 0 0.75 0 0 0</pose>
+
+      <collision name="col">
+        <geometry><box><size>4.7 1.9 1.5</size></box></geometry>
+      </collision>
+
+      <visual name="body_vis">
+        <geometry><box><size>4.7 1.9 1.5</size></box></geometry>
+        <material>
+          <ambient>0.3 0.3 0.3 1</ambient>
+          <diffuse>0.4 0.4 0.4 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+        </material>
+      </visual>
+
+      <!-- 번호판: pose 는 body 링크(중심) 기준 상대값.
+           앞면 x=+2.35 → 2.36 이면 1cm 앞으로 띄워 z-fighting 방지.
+           월드 z=0.50 목표 → 링크중심 0.75 기준 상대값 = 0.50 - 0.75 = -0.25 -->
+      <visual name="plate">
+        <pose>2.36 0 -0.25 0 0 0</pose>
+        <geometry><box><size>0.01 0.335 0.17</size></box></geometry>
+        <material>
+          <script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A01</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

@@ -16,6 +16,8 @@ import struct
 import collections
 import xml.etree.ElementTree as ET
 
+from gen_parking_world import LANDMARKS   # 랜드마크 배치/치수 단일 출처
+
 HERE = os.path.dirname(__file__)
 MODEL_SDF = os.path.join(HERE, '..', 'models', 'Distribution_Warehouse', 'model.sdf')
 WORLD = os.path.join(HERE, '..', 'worlds', 'parking_lot.world')   # 인라인 모델(기둥) collision 포함
@@ -48,8 +50,19 @@ def load_obstacle_boxes(path):
     return boxes
 
 
+def landmark_obstacle_boxes():
+    """비대칭 랜드마크 footprint 박스 (px,py,sx,sy,yaw).
+    랜드마크는 world 에 include(메시 collision)라 일반 파서로 못 읽음 → LANDMARKS 의
+    근사 박스(map_sx/sy)로 직접 등록. 영구 고정물이므로 map 에 넣어 AMCL 특징으로 쓴다.
+    ※ 차량은 일부러 map 에서 제외(움직이거나 없을 때 scan↔map 불일치로 AMCL 튐 방지)."""
+    # LANDMARKS value = (model, x, y, yaw, map_sx, map_sy)
+    return [(x, y, sx, sy, yaw)
+            for (_model, x, y, yaw, sx, sy) in LANDMARKS.values()]
+
+
 def main():
-    boxes = load_obstacle_boxes(MODEL_SDF) + load_obstacle_boxes(WORLD)  # 창고 + 인라인 기둥
+    # 창고 + 인라인 기둥(generic 파서) + 랜드마크(LANDMARKS 직접). 차량은 map 에 넣지 않음.
+    boxes = load_obstacle_boxes(MODEL_SDF) + load_obstacle_boxes(WORLD) + landmark_obstacle_boxes()
 
     # 맵 경계 = crop (순찰 영역만)
     x_min, x_max = CROP_X
@@ -115,7 +128,8 @@ def main():
     occ = sum(1 for v in grid if v == OCC)
     free = sum(1 for v in grid if v == FREE)
     print(f"맵 생성: {W}x{H} @ {RES}m  origin=({x_min:.1f},{y_min:.1f})  "
-          f"장애물박스 {len(boxes)}개 / occ {occ} / free {free} 셀")
+          f"장애물박스 {len(boxes)}개(랜드마크 {len(LANDMARKS)} 포함, 차량 제외) / "
+          f"occ {occ} / free {free} 셀")
 
 
 if __name__ == '__main__':

@@ -1,0 +1,52 @@
+// 차량 5대 번호판 머티리얼. 각 차량 visual이 이름으로 참조.
+// (Ogre 머티리얼은 이름이 전역이라 차량마다 고유 이름 필요)
+
+material CarPlate/A01
+{
+  technique { pass {
+    lighting off
+    ambient 1 1 1 1
+    diffuse 1 1 1 1
+    texture_unit { texture plate_A01.png  filtering anisotropic  max_anisotropy 8 }
+  }}
+}
+
+material CarPlate/A02
+{
+  technique { pass {
+    lighting off
+    ambient 1 1 1 1
+    diffuse 1 1 1 1
+    texture_unit { texture plate_A02.png  filtering anisotropic  max_anisotropy 8 }
+  }}
+}
+
+material CarPlate/A05
+{
+  technique { pass {
+    lighting off
+    ambient 1 1 1 1
+    diffuse 1 1 1 1
+    texture_unit { texture plate_A05.png  filtering anisotropic  max_anisotropy 8 }
+  }}
+}
+
+material CarPlate/A08
+{
+  technique { pass {
+    lighting off
+    ambient 1 1 1 1
+    diffuse 1 1 1 1
+    texture_unit { texture plate_A08.png  filtering anisotropic  max_anisotropy 8 }
+  }}
+}
+
+material CarPlate/A12
+{
+  technique { pass {
+    lighting off
+    ambient 1 1 1 1
+    diffuse 1 1 1 1
+    texture_unit { texture plate_A12.png  filtering anisotropic  max_anisotropy 8 }
+  }}
+}

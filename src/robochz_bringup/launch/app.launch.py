@@ -24,5 +24,7 @@ def generate_launch_description():
                       output='screen', parameters=[sim_time])
     patrol = Node(package='robochz_patrol', executable='patrol_node',
                   output='screen', parameters=[waypoints])   # waypoints.yaml 에 use_sim_time 포함
+    path_rec = Node(package='robochz_patrol', executable='path_recorder',
+                    output='screen', parameters=[sim_time])   # /patrol_path 기록·시각화
 
-    return LaunchDescription([monitor, perception, patrol])
+    return LaunchDescription([monitor, perception, patrol, path_rec])

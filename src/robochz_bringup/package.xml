@@ -12,6 +12,7 @@
   <exec_depend>robochz_monitor</exec_depend>
   <exec_depend>robochz_perception</exec_depend>
   <exec_depend>robochz_patrol</exec_depend>
+  <exec_depend>robochz_description</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

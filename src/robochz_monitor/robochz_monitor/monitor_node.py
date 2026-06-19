@@ -1,3 +1,8 @@
+import os
+
+# 로그 줄 포맷: "[INFO] [ts] [node]: msg" → 메시지만 (rclpy 로깅 초기화 전 설정)
+os.environ['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '{message}'
+
 import rclpy
 from rclpy.node import Node
 from robochz_msgs.msg import PlateDetection

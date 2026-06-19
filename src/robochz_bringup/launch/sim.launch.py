@@ -1,7 +1,8 @@
 """
-sim.launch.py — STEP3 인프라 (한 번 띄우고 유지)
-  - world.launch.py : 우리 주차장 world + TB3 spawn
-  - Nav2 : map_server(우리 parking_lot 맵) + AMCL(자동 initial pose) + planner/controller/bt
+sim.launch.py — 시뮬 인프라 (Nav2 + 정적 map→odom 디버그 버전). app.launch.py 와 짝.
+  - world.launch.py : 우리 주차장 world + Cheezlbot spawn
+  - Nav2           : map_server(우리 map) + AMCL(tf_broadcast:false) + planner/controller/bt
+  - map_odom_calib : 첫 odom 보정해 정적 map→odom 발행 (이중가산 자동 해소, AMCL TF 대체)
   순찰 노드(patrol/perception/monitor)는 app.launch.py 에서 별도로.
 """
 import os
@@ -10,6 +11,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
@@ -18,15 +20,14 @@ def generate_launch_description():
 
     world_launch = os.path.join(bringup, 'launch', 'world.launch.py')
     nav2_launch = os.path.join(tb3_nav2, 'launch', 'navigation2.launch.py')
+    map_yaml = os.path.join(bringup, 'maps', 'parking_lot.yaml')
+    nav2_params = os.path.join(bringup, 'config', 'nav2_waffle.yaml')
 
-    map_yaml = os.path.join(bringup, 'maps', 'parking_lot.yaml')        # ground-truth 맵
-    nav2_params = os.path.join(bringup, 'config', 'nav2_waffle.yaml')   # AMCL set_initial_pose 포함
-
-    # 우리 world + TB3 (gazebo/spawn/rsp)
+    # 우리 world + 로봇 (gazebo/spawn/rsp)
     world = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(world_launch))
 
-    # Nav2 (use_sim_time:=True 가 yaml 의 use_sim_time:False 를 RewrittenYaml 로 전부 덮어씀)
+    # Nav2 (use_sim_time:=True 가 yaml 의 False 를 RewrittenYaml 로 덮음)
     nav2 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(nav2_launch),
         launch_arguments={
@@ -35,4 +36,10 @@ def generate_launch_description():
             'params_file': nav2_params,
         }.items())
 
-    return LaunchDescription([world, nav2])
+    # 정적 map→odom (AMCL TF 대체). 첫 odom 을 기준점으로 보정 → 이중가산 자동 해소.
+    map_odom = Node(
+        package='robochz_patrol', executable='map_odom_calib',
+        name='map_odom_calib', output='screen',
+        parameters=[{'use_sim_time': True, 'spawn_x': 11.85, 'spawn_y': 8.0}])
+
+    return LaunchDescription([world, nav2, map_odom])

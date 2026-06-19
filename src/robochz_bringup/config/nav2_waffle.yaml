@@ -36,7 +36,10 @@ amcl:
     robot_model_type: "nav2_amcl::DifferentialMotionModel"
     save_pose_rate: 0.5
     sigma_hit: 0.2
-    tf_broadcast: true
+    # robochz: 시뮬 완벽 localization 채택 → AMCL은 map→odom TF를 발행하지 않음.
+    # 대신 sim.launch.py 가 스폰 위치 기준 정적 map→odom 을 발행(odom 이 sim 에서 정확).
+    # (1.5m 옆 대형 차량 + 통로 반복구조라 AMCL 매칭이 튐 → 정적 TF로 회피)
+    tf_broadcast: false
     transform_tolerance: 1.0
     update_min_a: 0.2
     update_min_d: 0.25
@@ -133,11 +136,11 @@ controller_server:
       debug_trajectory_details: True
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 0.22
+      max_vel_x: 0.26       # robochz: 0.22→0.26 (+~18%, TB3 waffle 최대치)
       max_vel_y: 0.0
-      max_vel_theta: 1.0
+      max_vel_theta: 1.2    # robochz: 1.0→1.2 (+20%)
       min_speed_xy: 0.0
-      max_speed_xy: 0.22
+      max_speed_xy: 0.26    # max_vel_x 와 일치
       min_speed_theta: 0.0
       # Add high threshold velocity for turtlebot 3 issue.
       # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
@@ -190,7 +193,7 @@ local_costmap:
       plugins: ["obstacle_layer", "voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 1.0
+        inflation_radius: 0.55   # robochz: 1.0→0.55 (global과 정렬). 1.5m 레인이 좁아 과팽창 방지
         cost_scaling_factor: 3.0
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"

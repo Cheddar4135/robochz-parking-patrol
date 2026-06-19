@@ -1,4 +1,8 @@
+import os
 import math
+
+# 로그 줄 포맷: "[INFO] [ts] [node]: msg" → 메시지만 (rclpy 로깅 초기화 전 설정)
+os.environ['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '{message}'
 
 import rclpy
 from rclpy.node import Node
@@ -11,193 +15,129 @@ from nav2_msgs.action import NavigateThroughPoses
 from action_msgs.msg import GoalStatus
 
 
-
-class PatrolNode(Node):                          # ① rclpy.node.Node 상속
+class PatrolNode(Node):
+    """Nav2 기반 순찰 — nav_through_poses 로 waypoint 이동 + 도착 시 인식 요청.
+    (Rule-based 버전은 patrol_rulebased.py)
+    """
     def __init__(self):
-        super().__init__('patrol_node')          # ② ROS2에 보이는 노드 이름
-        self.get_logger().info('patrol_node 시작')
+        super().__init__('patrol_node')
+        self.get_logger().info('patrol_node 시작 (Nav2)')
 
-        # ── navigate_through_poses 액션 클라이언트 생성 ──
-        self._nav_client = ActionClient(
-            self,
-            NavigateThroughPoses,
-            'navigate_through_poses'
-        )
+        self._nav_client = ActionClient(self, NavigateThroughPoses,
+                                        'navigate_through_poses')
+        self._action_client = ActionClient(self, RecognizePlate, 'recognize_plate')
 
-        # ── recognize_plate 액션 클라이언트 생성 ──
-        self._action_client = ActionClient(
-            self,
-            RecognizePlate,
-            'recognize_plate'
-        )
-
-        # ── 순찰 waypoint 파라미터 로드 (config/patrol_waypoints.yaml) ──
-        # declare_parameter 기본값을 [0.0](double 리스트)로 줘야 yaml의 실수 리스트로 받아진다.
+        # ── 순찰 waypoint 파라미터 ──
         self.declare_parameter('waypoints_x', [0.0])
         self.declare_parameter('waypoints_y', [0.0])
         self.declare_parameter('waypoints_yaw', [0.0])
+        self.declare_parameter('waypoints_id', [''])
         xs = self.get_parameter('waypoints_x').value
         ys = self.get_parameter('waypoints_y').value
         yaws = self.get_parameter('waypoints_yaw').value
-        self._waypoints = list(zip(xs, ys, yaws))   # [(x, y, yaw), ...] 인덱스로 묶음
-        self._wp_index = 0                           # 현재 순찰 중인 waypoint 인덱스
-        self.get_logger().info(f'순찰 waypoint {len(self._waypoints)}개 로드')
+        self._waypoints = list(zip(xs, ys, yaws))
+        ids = self.get_parameter('waypoints_id').value
+        self._wp_ids = (list(ids) if len(ids) == len(self._waypoints)
+                        else [f'A{i + 1}' for i in range(len(self._waypoints))])
+        self._wp_index = 0
+        self.declare_parameter('settle_sec', 2.0)
+        self._settle_sec = self.get_parameter('settle_sec').value
+        self.get_logger().info(
+            f'순찰 waypoint {len(self._waypoints)}개 로드 (도착 후 {self._settle_sec:.1f}s 대기)')
 
-        # ── Timer 1회 트리거 패턴 ──
-        # Iteration 0 테스트용:
-        # 액션 클라이언트가 생성된 뒤 Goal을 1회만 보낸다. 
+        # Timer 1회 트리거 → WP1 전송
         self._goal_sent = False
-        self._startup_timer = self.create_timer(
-            1.0,
-            self._send_initial_goal_once
-        )
+        self._startup_timer = self.create_timer(1.0, self._send_initial_goal_once)
 
     def _send_initial_goal_once(self):
-        # #timer는 기본적으로 반복 실행되므로, 테스트 Goal은 한 번만 보내고 중지한다.
         if self._goal_sent:
             return
         self._goal_sent = True
         self._startup_timer.cancel()
-
-        # Iteration 0 
-        # 먼저 waypoint로 이동한 뒤, 도착하면 번호판 인식을 요청한다.
         self.send_navigation_goal()
 
     def send_navigation_goal(self):
-        self.get_logger().info('navigate_through_poses 액션 서버 대기...')
-
         if not self._nav_client.wait_for_server(timeout_sec=5.0):
-            self.get_logger().error(
-                'navigate_through_poses 액션 서버 응답 없음'
-            )
+            self.get_logger().error('navigate_through_poses 액션 서버 응답 없음')
             return
-        
-        self.get_logger().info('navigate_through_poses 액션 서버 연결 완료')
-
-        # 현재 인덱스의 순찰 waypoint
         x, y, yaw = self._waypoints[self._wp_index]
-
         target = PoseStamped()
         target.header.stamp = self.get_clock().now().to_msg()
         target.header.frame_id = 'map'
         target.pose.position.x = x
         target.pose.position.y = y
-        # yaw(z축 회전만) → 쿼터니언: z = sin(yaw/2), w = cos(yaw/2)
-        target.pose.orientation.z = math.sin(yaw / 2.0)
+        target.pose.orientation.z = math.sin(yaw / 2.0)   # z축 회전만
         target.pose.orientation.w = math.cos(yaw / 2.0)
-
         goal = NavigateThroughPoses.Goal()
         goal.poses.append(target)
-
         self.get_logger().info(
             f'WP {self._wp_index + 1}/{len(self._waypoints)} '
-            f'({x:.2f}, {y:.2f}) 이동 요청 전송'
-        )
-
+            f'{self._wp_ids[self._wp_index]} ({x:.2f}, {y:.2f}) 이동 요청')
         future = self._nav_client.send_goal_async(
-            goal,
-            feedback_callback=self.nav_feedback_callback
-        )
+            goal, feedback_callback=self.nav_feedback_callback)
         future.add_done_callback(self.nav_goal_response_callback)
 
     def nav_goal_response_callback(self, future):
-        goal_handle = future.result()
-
-        if not goal_handle.accepted:
-            self.get_logger().info('Nav2 waypoint 이동 요청 거부됨')
+        gh = future.result()
+        if not gh.accepted:
+            self.get_logger().info('Nav2 이동 요청 거부됨')
             return
-        self.get_logger().info('Nav2 waypoint 이동 요청 수락됨, 이동 중...')
-        result_future = goal_handle.get_result_async()
-        result_future.add_done_callback(self.nav_get_result_callback)
+        gh.get_result_async().add_done_callback(self.nav_get_result_callback)
 
     def nav_feedback_callback(self, feedback_msg):
-        feedback = feedback_msg.feedback
-        x = feedback.current_pose.pose.position.x
-        y = feedback.current_pose.pose.position.y
-
+        fb = feedback_msg.feedback
+        # number_of_poses_remaining 은 goal당 pose 수(늘 1) → 우리 인덱스로 잔여 계산
+        remaining = len(self._waypoints) - (self._wp_index + 1)
         self.get_logger().info(
-            f'Nav2 이동 중 | 위치=({x:.2f}, {y:.2f}) | '
-            f'남은거리={feedback.distance_remaining:.2f}m | '
-            f'남은 waypoint={feedback.number_of_poses_remaining}',
-            throttle_duration_sec=1.0
-        )
+            f'[{self._wp_ids[self._wp_index]}] 이동 중 · '
+            f'남은거리 {fb.distance_remaining:.1f}m · 남은 {remaining}곳',
+            throttle_duration_sec=3.0)
 
     def nav_get_result_callback(self, future):
-        # Nav2 이동 결과 콜백에서는 액션의 최종 상태를 확인하여 성공 여부를 판단한다.
-        status = future.result().status         
+        status = future.result().status
         if status == GoalStatus.STATUS_SUCCEEDED:
-            self.get_logger().info('Nav2 waypoint 이동 완료, 번호판 인식 요청 전송')
-            self.send_recognition_goal()
+            wp = self._wp_ids[self._wp_index]
+            self.get_logger().info(f'[{wp}] 도착 — {self._settle_sec:.1f}s 안정화 대기 후 인식')
+            self._settle_timer = self.create_timer(self._settle_sec, self._after_settle)
         else:
-            self.get_logger().error(
-                f'Nav2 waypoint 이동 실패, status={status}'
-            )
+            self.get_logger().error(f'Nav2 이동 실패, status={status}')
+
+    def _after_settle(self):
+        self._settle_timer.cancel()        # 일회성
+        self.send_recognition_goal()
 
     def send_recognition_goal(self):
-        # ── recognize_plate 액션 서버 확인 ──
-        self.get_logger().info('recognize_plate 액션 서버 대기...')
-
         if not self._action_client.wait_for_server(timeout_sec=5.0):
-            self.get_logger().error(
-                'recognize_plate 액션 서버 응답 없음'
-            )
+            self.get_logger().error('recognize_plate 액션 서버 응답 없음')
             return
-
-        self.get_logger().info('recognize_plate 액션 서버 연결 완료')
-
-        # ── Goal 생성 ──
-        # 현재 waypoint id (예: A1, A2 ...) 를 실어 monitor 기록을 의미있게.
         goal = RecognizePlate.Goal()
-        goal.waypoint_id = f'A{self._wp_index + 1}'
-
-        # robot_pose는 실제 로봇 위치를 담아야 하지만, 여기서는 더미 PoseStamped를 생성한다.
+        goal.waypoint_id = self._wp_ids[self._wp_index]
         goal.robot_pose = PoseStamped()
         goal.robot_pose.header.stamp = self.get_clock().now().to_msg()
         goal.robot_pose.header.frame_id = 'map'
         goal.robot_pose.pose.orientation.w = 1.0
-
-        self.get_logger().info('번호판 인식 요청 전송')
-
         future = self._action_client.send_goal_async(
-            goal,
-            feedback_callback=self.feedback_callback
-        )
-
-        future.add_done_callback(
-            self.goal_response_callback
-        )
+            goal, feedback_callback=self.feedback_callback)
+        future.add_done_callback(self.goal_response_callback)
 
     def goal_response_callback(self, future):
-        goal_handle = future.result()
-        if not goal_handle.accepted:
+        gh = future.result()
+        if not gh.accepted:
             self.get_logger().info('번호판 인식 요청 거부됨')
             return
-        self.get_logger().info('번호판 인식 요청 수락됨, 결과 대기 중...')
-        result_future = goal_handle.get_result_async()
-        result_future.add_done_callback(self.get_result_callback)
+        gh.get_result_async().add_done_callback(self.get_result_callback)
 
     def feedback_callback(self, feedback_msg):
-        # feedback_callback은 add_done_callback이 아니라
-        # send_goal_async의 feedback_callback 인자로 직접 등록된다.
-        feedback = feedback_msg.feedback
+        fb = feedback_msg.feedback
         self.get_logger().info(
-            f'인식 진행 상황: {feedback.current_step}, 진행률={feedback.progress:.0%}'
-        )
+            f'인식 진행: {fb.current_step}, {fb.progress:.0%}')
 
     def get_result_callback(self, future):
-        result = future.result().result
-        status = '등록' if result.is_registered else '미등록'
-
+        r = future.result().result
+        tag = '등록' if r.is_registered else '미등록'
         self.get_logger().info(
-            f'번호판 인식 결과: '
-            f'번호판={result.plate_text}, '
-            f'상태={status}, '
-            f'신뢰도={result.confidence:.2f}'
-        )
-
-        # ── 다음 waypoint 로 진행 (순찰 루프의 핵심) ──
-        # 인식 완료 콜백이 "다음 칸으로 이동"의 트리거. 비동기 체인이므로
-        # 콜백 안에서 직접 다음 send_navigation_goal() 을 호출한다(데드락 회피).
+            f'인식 결과: 번호판={r.plate_text}, 상태={tag}, 신뢰도={r.confidence:.2f}')
+        # 다음 waypoint (비동기 콜백 체인)
         self._wp_index += 1
         if self._wp_index < len(self._waypoints):
             self.send_navigation_goal()
@@ -206,10 +146,10 @@ class PatrolNode(Node):                          # ① rclpy.node.Node 상속
 
 
 def main(args=None):
-    rclpy.init(args=args)                         # ④ ROS2 통신 시스템 초기화
+    rclpy.init(args=args)
     node = PatrolNode()
     try:
-        rclpy.spin(node)                          # ⑤ 콜백 받을 때까지 무한 대기
+        rclpy.spin(node)
     except KeyboardInterrupt:
         pass
     finally:

@@ -24,7 +24,10 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'patrol_node = robochz_patrol.patrol_node:main',
+            'patrol_node = robochz_patrol.patrol_node:main',            # Nav2 버전
+            'patrol_rulebased = robochz_patrol.patrol_rulebased:main',  # Rule-based 버전
+            'map_odom_calib = robochz_patrol.map_odom_calib:main',      # 정적 map→odom 보정
+            'path_recorder = robochz_patrol.path_recorder:main',        # 주행경로 기록/시각화
         ],
     },
 )

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>robochz_description</name>
+  <version>0.0.0</version>
+  <description>Cheezlbot 로봇 description (TB3 waffle + 카메라 우측 90° 마운트)</description>
+  <maintainer email="studymode030303@gmail.com">dahyun</maintainer>
+  <license>Apache-2.0</license>
+
+  <!-- urdf를 /robot_description으로 발행 -->
+  <exec_depend>robot_state_publisher</exec_depend>
+  <!-- model.sdf 스폰 + 플러그인(diff_drive·ray·camera) -->
+  <exec_depend>gazebo_ros</exec_depend>
+  <!-- model://turtlebot3_common 메시 + 카메라/구동 플러그인 제공 -->
+  <exec_depend>turtlebot3_gazebo</exec_depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -1,8 +1,9 @@
 """
-world.launch.py — 우리 주차장 world + TurtleBot3 spawn (Iteration 1, STEP1~2용)
-  - parking_lot.world (Distribution_Warehouse + 주차라인) 로드
-  - TB3 robot_state_publisher + spawn
-  - Nav2 는 아직 없음 (맵 생성 후 STEP3에서 sim.launch.py 로 재구성)
+world.launch.py — 우리 주차장 world + Cheezlbot(robochz_description) spawn
+  - parking_lot.world (Distribution_Warehouse + 주차라인 + 차량) 로드
+  - robochz_description 의 urdf(robot_state_publisher) + model.sdf(spawn)
+    → Iter2: 카메라 우측 90° 마운트 적용본 사용
+  - Nav2 는 sim.launch.py 가 이 위에 얹음
 """
 import os
 
@@ -19,19 +20,21 @@ def generate_launch_description():
     bringup = get_package_share_directory('robochz_bringup')
     gazebo_ros = get_package_share_directory('gazebo_ros')
     tb3_gazebo = get_package_share_directory('turtlebot3_gazebo')
+    desc = get_package_share_directory('robochz_description')   # 우리 로봇(카메라 90°)
 
     world = os.path.join(bringup, 'worlds', 'parking_lot.world')
     models_dir = os.path.join(bringup, 'models')   # model://Distribution_Warehouse 해석용
 
-    # TB3 gazebo model.sdf — diff_drive(/cmd_vel·/odom·TF) + ray_sensor(/scan) 플러그인 포함.
-    # (URDF/robot_description 에는 이 플러그인이 없어 -topic 스폰은 로봇이 안 움직임)
-    tb3_sdf = os.path.join(
-        tb3_gazebo, 'models',
-        'turtlebot3_' + os.environ['TURTLEBOT3_MODEL'], 'model.sdf')
+    # 우리 로봇 description (Iter2 카메라 우측 90° 적용본)
+    urdf_path = os.path.join(desc, 'urdf', 'robochz_waffle.urdf')   # TF용 (camera_link 회전)
+    robot_sdf = os.path.join(desc, 'models', 'robochz_waffle', 'model.sdf')  # spawn용 (센서 회전 + 플러그인)
+    with open(urdf_path, 'r') as f:
+        robot_desc = f.read()
 
-    # 기존 GAZEBO_MODEL_PATH 에 우리 models 를 "추가" (sun/ground_plane 기본 경로 보존)
-    # include 평가 전 즉시 반영(부모 process) + SetEnvironmentVariable(자식 process) 이중 보강
-    model_path = models_dir + os.pathsep + os.environ.get('GAZEBO_MODEL_PATH', '')
+    # GAZEBO_MODEL_PATH: 우리 models + TB3 common 메시(model://turtlebot3_common 해석)
+    tb3_models = os.path.join(tb3_gazebo, 'models')
+    model_path = os.pathsep.join(
+        [models_dir, tb3_models, os.environ.get('GAZEBO_MODEL_PATH', '')])
     os.environ['GAZEBO_MODEL_PATH'] = model_path
 
     # spawn 위치 = A구역 통로 중심 (깨끗한 구역)
@@ -46,14 +49,14 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(gazebo_ros, 'launch', 'gzclient.launch.py')))
 
-    rsp = IncludeLaunchDescription(   # TB3 URDF 를 /robot_description 으로 발행
-        PythonLaunchDescriptionSource(
-            os.path.join(tb3_gazebo, 'launch', 'robot_state_publisher.launch.py')),
-        launch_arguments={'use_sim_time': 'true'}.items())
+    rsp = Node(   # 우리 urdf 를 /robot_description 으로 발행 (camera_link 90° 회전 반영)
+        package='robot_state_publisher', executable='robot_state_publisher',
+        output='screen',
+        parameters=[{'use_sim_time': True, 'robot_description': robot_desc}])
 
-    spawn = Node(   # model.sdf(diff_drive·laser 플러그인 포함)로 TB3 스폰
+    spawn = Node(   # 우리 model.sdf(diff_drive·laser·camera 플러그인 + 카메라 90°)로 스폰
         package='gazebo_ros', executable='spawn_entity.py', output='screen',
-        arguments=['-entity', 'waffle', '-file', tb3_sdf,
+        arguments=['-entity', 'cheezlbot', '-file', robot_sdf,
                    '-x', spawn_x, '-y', spawn_y, '-z', '0.01'])
 
     return LaunchDescription([

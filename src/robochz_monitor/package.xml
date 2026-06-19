@@ -9,7 +9,11 @@
 
   <!-- Runtime dependencies -->
   <depend>rclpy</depend>
+  <depend>std_msgs</depend>          <!-- /patrol_status: Bool -->
+  <depend>nav_msgs</depend>          <!-- /patrol_path: Path -->
   <depend>robochz_msgs</depend>
+  <exec_depend>python3-pyqt5</exec_depend>   <!-- alert_node GUI -->
+  <!-- 음성 알림: espeak-ng (apt 패키지, 한국어 voice 'ko' 지원) -->
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'monitor_node = robochz_monitor.monitor_node:main'
+            'monitor_node = robochz_monitor.monitor_node:main',
+            'alert_node = robochz_monitor.alert_node:main',   # 미등록 즉시 알림 GUI
         ],
     },
 )

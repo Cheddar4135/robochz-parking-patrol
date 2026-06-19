@@ -11,6 +11,11 @@ from nav_msgs.msg import Path
 from tf2_ros import Buffer, TransformListener
 
 
+def _stamp_sec(stamp):
+    """builtin_interfaces/Time → float 초."""
+    return stamp.sec + stamp.nanosec * 1e-9
+
+
 class PathRecorder(Node):
     """로봇 주행궤적 기록·시각화.
     TF(map→base_footprint)를 주기적으로 읽어 nav_msgs/Path(/patrol_path)로 누적 발행
@@ -59,11 +64,14 @@ class PathRecorder(Node):
             self.get_logger().warn('저장할 경로 없음')
             return
         os.makedirs(os.path.dirname(self._out), exist_ok=True)
+        t0 = _stamp_sec(self._path.poses[0].header.stamp)
         with open(self._out, 'w', newline='') as f:
             w = csv.writer(f)
-            w.writerow(['x', 'y'])
+            w.writerow(['t', 'x', 'y'])      # t = 첫 점 기준 상대시각(초)
             for p in self._path.poses:
-                w.writerow([f'{p.pose.position.x:.4f}', f'{p.pose.position.y:.4f}'])
+                t = _stamp_sec(p.header.stamp) - t0
+                w.writerow([f'{t:.3f}', f'{p.pose.position.x:.4f}',
+                            f'{p.pose.position.y:.4f}'])
         self.get_logger().info(f'주행경로 {len(self._path.poses)}점 저장: {self._out}')
 
 

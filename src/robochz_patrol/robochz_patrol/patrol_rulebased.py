@@ -7,11 +7,21 @@ os.environ['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '{message}'
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
+from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
 
 from geometry_msgs.msg import PoseStamped, Twist, TransformStamped
 from nav_msgs.msg import Odometry
+from std_msgs.msg import Bool
 from robochz_msgs.action import RecognizePlate
 from tf2_ros import StaticTransformBroadcaster
+
+
+def patrol_status_qos():
+    """순찰 종료 = 터미널 1회 신호 → transient_local(latched) 로 발행."""
+    qos = QoSProfile(depth=1)
+    qos.durability = DurabilityPolicy.TRANSIENT_LOCAL
+    qos.reliability = ReliabilityPolicy.RELIABLE
+    return qos
 
 
 def norm(a):
@@ -71,6 +81,8 @@ class PatrolNode(Node):
         self.create_subscription(Odometry, '/odom', self._on_odom, 10)
         self._rec_client = ActionClient(self, RecognizePlate, 'recognize_plate')
         self._tf_bcast = StaticTransformBroadcaster(self)   # 보정된 map→odom 발행(RViz)
+        self._status_pub = self.create_publisher(           # 완주 알림 → monitor 리포트
+            Bool, '/patrol_status', patrol_status_qos())
 
         # ── 상태 ──
         self._pose = None          # (x, y, yaw) in map
@@ -210,6 +222,7 @@ class PatrolNode(Node):
             self._stop()
             self._state = 'DONE'
             self.get_logger().info('순찰 완료 — A구역 한 바퀴 종료')
+            self._status_pub.publish(Bool(data=True))   # monitor 리포트 트리거
 
 
 def main(args=None):

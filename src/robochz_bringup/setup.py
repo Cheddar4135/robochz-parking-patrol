@@ -45,6 +45,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'dynamic_car_mover = robochz_bringup.dynamic_car_mover:main',  # 고정경로 동적차량
         ],
     },
 )

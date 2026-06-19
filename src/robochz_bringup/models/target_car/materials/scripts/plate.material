@@ -1,5 +1,5 @@
-// 차량 5대 번호판 머티리얼. 각 차량 visual이 이름으로 참조.
-// (Ogre 머티리얼은 이름이 전역이라 차량마다 고유 이름 필요)
+// 차량 번호판 머티리얼 (정지10 + 동적1). 각 visual이 이름으로 참조.
+// Ogre 머티리얼명은 전역이라 차량마다 고유.
 
 material CarPlate/A01
 {
@@ -21,6 +21,26 @@ material CarPlate/A02
   }}
 }
 
+material CarPlate/A03
+{
+  technique { pass {
+    lighting off
+    ambient 1 1 1 1
+    diffuse 1 1 1 1
+    texture_unit { texture plate_A03.png  filtering anisotropic  max_anisotropy 8 }
+  }}
+}
+
+material CarPlate/A04
+{
+  technique { pass {
+    lighting off
+    ambient 1 1 1 1
+    diffuse 1 1 1 1
+    texture_unit { texture plate_A04.png  filtering anisotropic  max_anisotropy 8 }
+  }}
+}
+
 material CarPlate/A05
 {
   technique { pass {
@@ -28,6 +48,16 @@ material CarPlate/A05
     ambient 1 1 1 1
     diffuse 1 1 1 1
     texture_unit { texture plate_A05.png  filtering anisotropic  max_anisotropy 8 }
+  }}
+}
+
+material CarPlate/A07
+{
+  technique { pass {
+    lighting off
+    ambient 1 1 1 1
+    diffuse 1 1 1 1
+    texture_unit { texture plate_A07.png  filtering anisotropic  max_anisotropy 8 }
   }}
 }
 
@@ -41,6 +71,26 @@ material CarPlate/A08
   }}
 }
 
+material CarPlate/A10
+{
+  technique { pass {
+    lighting off
+    ambient 1 1 1 1
+    diffuse 1 1 1 1
+    texture_unit { texture plate_A10.png  filtering anisotropic  max_anisotropy 8 }
+  }}
+}
+
+material CarPlate/A11
+{
+  technique { pass {
+    lighting off
+    ambient 1 1 1 1
+    diffuse 1 1 1 1
+    texture_unit { texture plate_A11.png  filtering anisotropic  max_anisotropy 8 }
+  }}
+}
+
 material CarPlate/A12
 {
   technique { pass {
@@ -50,3 +100,14 @@ material CarPlate/A12
     texture_unit { texture plate_A12.png  filtering anisotropic  max_anisotropy 8 }
   }}
 }
+
+material CarPlate/DYN
+{
+  technique { pass {
+    lighting off
+    ambient 1 1 1 1
+    diffuse 1 1 1 1
+    texture_unit { texture plate_DYN.png  filtering anisotropic  max_anisotropy 8 }
+  }}
+}
+

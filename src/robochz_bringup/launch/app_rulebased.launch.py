@@ -20,6 +20,8 @@ def generate_launch_description():
 
     monitor = Node(package='robochz_monitor', executable='monitor_node',
                    output='screen', parameters=[sim_time])
+    alert = Node(package='robochz_monitor', executable='alert_node',
+                 output='screen', parameters=[sim_time])   # 미등록 즉시 알림 GUI
     perception = Node(package='robochz_perception', executable='perception_node',
                       output='screen', parameters=[sim_time])
     patrol = Node(package='robochz_patrol', executable='patrol_rulebased',
@@ -27,4 +29,4 @@ def generate_launch_description():
     path_rec = Node(package='robochz_patrol', executable='path_recorder',
                     output='screen', parameters=[sim_time])   # /patrol_path 기록·시각화
 
-    return LaunchDescription([monitor, perception, patrol, path_rec])
+    return LaunchDescription([monitor, alert, perception, patrol, path_rec])

@@ -1,0 +1,17 @@
+dynamic_car_mover:
+  ros__parameters:
+    use_sim_time: true
+    cmd_vel_topic: /dyn_car/cmd_vel
+    odom_topic: /dyn_car/odom
+    speed: 0.39            # 주행 속도 (m/s) = TB3 waffle 0.26 × 1.5
+    max_wz: 0.7            # 회전속도 상한 (rad/s) — 작을수록 완만한 코너
+    k_head: 1.5           # 방향오차 P 이득
+    start_delay: 5.0       # 노드 시작 후 대기(초) → 로봇이 스폰을 벗어난 뒤 차가 도착하게
+    advance_radius: 1.0    # 다음 경로점으로 넘어가는 거리(m)
+    goal_tol: 0.4
+    smooth_iters: 0        # 직선 경로라 코너커팅 불필요
+
+    # 고정경로 — 동쪽서 역방향(-x) 진입 → 통로 중앙(로봇 스폰 11.85,8.0)에 정지.
+    #   정지 장애물이라 로봇은 살짝만 비켜감(정면 충돌 아님).
+    path_x: [24.0, 11.85]
+    path_y: [8.0,  8.0]

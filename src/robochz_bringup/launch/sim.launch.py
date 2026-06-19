@@ -9,8 +9,9 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 
 
@@ -21,7 +22,13 @@ def generate_launch_description():
     world_launch = os.path.join(bringup, 'launch', 'world.launch.py')
     nav2_launch = os.path.join(tb3_nav2, 'launch', 'navigation2.launch.py')
     map_yaml = os.path.join(bringup, 'maps', 'parking_lot.yaml')
-    nav2_params = os.path.join(bringup, 'config', 'nav2_waffle.yaml')
+
+    # 컨트롤러 선택: controller:=mppi(기본) | dwb — costmap/planner/BT 동일, 컨트롤러만 교체.
+    controller = LaunchConfiguration('controller')
+    nav2_dwb = os.path.join(bringup, 'config', 'nav2_waffle.yaml')
+    nav2_mppi = os.path.join(bringup, 'config', 'nav2_waffle_mppi.yaml')
+    nav2_params = PythonExpression(
+        ["'", nav2_mppi, "' if '", controller, "' == 'mppi' else '", nav2_dwb, "'"])
 
     # 우리 world + 로봇 (gazebo/spawn/rsp)
     world = IncludeLaunchDescription(
@@ -42,4 +49,7 @@ def generate_launch_description():
         name='map_odom_calib', output='screen',
         parameters=[{'use_sim_time': True, 'spawn_x': 11.85, 'spawn_y': 8.0}])
 
-    return LaunchDescription([world, nav2, map_odom])
+    return LaunchDescription([
+        DeclareLaunchArgument('controller', default_value='mppi',
+                              description='지역 컨트롤러: dwb | mppi'),
+        world, nav2, map_odom])

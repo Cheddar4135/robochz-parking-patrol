@@ -9,6 +9,10 @@
 
   <exec_depend>turtlebot3_gazebo</exec_depend>
   <exec_depend>turtlebot3_navigation2</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>    <!-- dynamic_car_mover: Twist -->
+  <exec_depend>nav_msgs</exec_depend>         <!-- dynamic_car_mover: Odometry -->
+  <exec_depend>gazebo_ros</exec_depend>       <!-- libgazebo_ros_planar_move.so -->
   <exec_depend>robochz_monitor</exec_depend>
   <exec_depend>robochz_perception</exec_depend>
   <exec_depend>robochz_patrol</exec_depend>

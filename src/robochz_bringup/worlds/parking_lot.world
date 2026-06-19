@@ -542,17 +542,25 @@
     <!-- 주차 차량: OCR 타깃 (collision+visual + 번호판) -->
     <model name="car_A01">
       <static>true</static>
-      <pose>5.350 13.500 0 0 0 -1.5708</pose>
+      <pose>5.350 13.500 0 0 0 0.0</pose>
       <link name="body">
-        <pose>0 0 0.75 0 0 0</pose>
-        <collision name="col"><geometry><box><size>4.7 1.9 1.5</size></box></geometry></collision>
-        <visual name="body_vis">
-          <geometry><box><size>4.7 1.9 1.5</size></box></geometry>
-          <material><ambient>0.25 0.25 0.30 1</ambient><diffuse>0.30 0.30 0.42 1</diffuse></material>
+        <collision name="col"><pose>0 0 0.75 0 0 0</pose>
+          <geometry><box><size>2.1 4.7 1.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><mesh><uri>model://target_car/meshes/Car_red.dae</uri><scale>1 1 1</scale></mesh></geometry>
         </visual>
-        <visual name="plate">
-          <pose>2.36 0.0 -0.25 0 0 0</pose>
-          <geometry><box><size>0.01 0.335 0.17</size></box></geometry>
+        <visual name="plate_front">
+          <pose>0 -2.4 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A01</name>
+          </script></material>
+        </visual>
+        <visual name="plate_rear">
+          <pose>0 2.285 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
           <material><script>
             <uri>model://target_car/materials/scripts</uri>
             <uri>model://target_car/materials/textures</uri>
@@ -563,17 +571,25 @@
     </model>
     <model name="car_A02">
       <static>true</static>
-      <pose>7.950 13.500 0 0 0 -1.5708</pose>
+      <pose>7.950 13.500 0 0 0 0.0</pose>
       <link name="body">
-        <pose>0 0 0.75 0 0 0</pose>
-        <collision name="col"><geometry><box><size>4.7 1.9 1.5</size></box></geometry></collision>
-        <visual name="body_vis">
-          <geometry><box><size>4.7 1.9 1.5</size></box></geometry>
-          <material><ambient>0.25 0.25 0.30 1</ambient><diffuse>0.30 0.30 0.42 1</diffuse></material>
+        <collision name="col"><pose>0 0 0.75 0 0 0</pose>
+          <geometry><box><size>2.1 4.7 1.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><mesh><uri>model://target_car/meshes/Car_blue.dae</uri><scale>1 1 1</scale></mesh></geometry>
         </visual>
-        <visual name="plate">
-          <pose>2.36 0.0 -0.25 0 0 0</pose>
-          <geometry><box><size>0.01 0.335 0.17</size></box></geometry>
+        <visual name="plate_front">
+          <pose>0 -2.4 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A02</name>
+          </script></material>
+        </visual>
+        <visual name="plate_rear">
+          <pose>0 2.285 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
           <material><script>
             <uri>model://target_car/materials/scripts</uri>
             <uri>model://target_car/materials/textures</uri>
@@ -582,19 +598,85 @@
         </visual>
       </link>
     </model>
+    <model name="car_A03">
+      <static>true</static>
+      <pose>10.550 13.500 0 0 0 0.0</pose>
+      <link name="body">
+        <collision name="col"><pose>0 0 0.75 0 0 0</pose>
+          <geometry><box><size>2.1 4.7 1.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><mesh><uri>model://target_car/meshes/Car_white.dae</uri><scale>1 1 1</scale></mesh></geometry>
+        </visual>
+        <visual name="plate_front">
+          <pose>0 -2.4 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A03</name>
+          </script></material>
+        </visual>
+        <visual name="plate_rear">
+          <pose>0 2.285 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A03</name>
+          </script></material>
+        </visual>
+      </link>
+    </model>
+    <model name="car_A04">
+      <static>true</static>
+      <pose>13.150 13.500 0 0 0 0.0</pose>
+      <link name="body">
+        <collision name="col"><pose>0 0 0.75 0 0 0</pose>
+          <geometry><box><size>2.1 4.7 1.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><mesh><uri>model://target_car/meshes/Car_silver.dae</uri><scale>1 1 1</scale></mesh></geometry>
+        </visual>
+        <visual name="plate_front">
+          <pose>0 -2.4 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A04</name>
+          </script></material>
+        </visual>
+        <visual name="plate_rear">
+          <pose>0 2.285 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A04</name>
+          </script></material>
+        </visual>
+      </link>
+    </model>
     <model name="car_A05">
       <static>true</static>
-      <pose>15.750 13.500 0 0 0 -1.5708</pose>
+      <pose>15.750 13.500 0 0 0 0.0</pose>
       <link name="body">
-        <pose>0 0 0.75 0 0 0</pose>
-        <collision name="col"><geometry><box><size>4.7 1.9 1.5</size></box></geometry></collision>
-        <visual name="body_vis">
-          <geometry><box><size>4.7 1.9 1.5</size></box></geometry>
-          <material><ambient>0.25 0.25 0.30 1</ambient><diffuse>0.30 0.30 0.42 1</diffuse></material>
+        <collision name="col"><pose>0 0 0.75 0 0 0</pose>
+          <geometry><box><size>2.1 4.7 1.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><mesh><uri>model://target_car/meshes/Car_yellow.dae</uri><scale>1 1 1</scale></mesh></geometry>
         </visual>
-        <visual name="plate">
-          <pose>2.36 0.0 -0.25 0 0 0</pose>
-          <geometry><box><size>0.01 0.335 0.17</size></box></geometry>
+        <visual name="plate_front">
+          <pose>0 -2.4 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A05</name>
+          </script></material>
+        </visual>
+        <visual name="plate_rear">
+          <pose>0 2.285 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
           <material><script>
             <uri>model://target_car/materials/scripts</uri>
             <uri>model://target_car/materials/textures</uri>
@@ -603,19 +685,56 @@
         </visual>
       </link>
     </model>
+    <model name="car_A07">
+      <static>true</static>
+      <pose>5.350 2.500 0 0 0 3.14159</pose>
+      <link name="body">
+        <collision name="col"><pose>0 0 0.75 0 0 0</pose>
+          <geometry><box><size>2.1 4.7 1.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><mesh><uri>model://target_car/meshes/Car_red.dae</uri><scale>1 1 1</scale></mesh></geometry>
+        </visual>
+        <visual name="plate_front">
+          <pose>0 -2.4 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A07</name>
+          </script></material>
+        </visual>
+        <visual name="plate_rear">
+          <pose>0 2.285 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A07</name>
+          </script></material>
+        </visual>
+      </link>
+    </model>
     <model name="car_A08">
       <static>true</static>
-      <pose>7.950 2.500 0 0 0 1.5708</pose>
+      <pose>7.950 2.500 0 0 0 3.14159</pose>
       <link name="body">
-        <pose>0 0 0.75 0 0 0</pose>
-        <collision name="col"><geometry><box><size>4.7 1.9 1.5</size></box></geometry></collision>
-        <visual name="body_vis">
-          <geometry><box><size>4.7 1.9 1.5</size></box></geometry>
-          <material><ambient>0.25 0.25 0.30 1</ambient><diffuse>0.30 0.30 0.42 1</diffuse></material>
+        <collision name="col"><pose>0 0 0.75 0 0 0</pose>
+          <geometry><box><size>2.1 4.7 1.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><mesh><uri>model://target_car/meshes/Car_blue.dae</uri><scale>1 1 1</scale></mesh></geometry>
         </visual>
-        <visual name="plate">
-          <pose>2.36 0.0 -0.25 0 0 0</pose>
-          <geometry><box><size>0.01 0.335 0.17</size></box></geometry>
+        <visual name="plate_front">
+          <pose>0 -2.4 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A08</name>
+          </script></material>
+        </visual>
+        <visual name="plate_rear">
+          <pose>0 2.285 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
           <material><script>
             <uri>model://target_car/materials/scripts</uri>
             <uri>model://target_car/materials/textures</uri>
@@ -624,19 +743,85 @@
         </visual>
       </link>
     </model>
+    <model name="car_A10">
+      <static>true</static>
+      <pose>13.150 2.500 0 0 0 3.14159</pose>
+      <link name="body">
+        <collision name="col"><pose>0 0 0.75 0 0 0</pose>
+          <geometry><box><size>2.1 4.7 1.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><mesh><uri>model://target_car/meshes/Car_white.dae</uri><scale>1 1 1</scale></mesh></geometry>
+        </visual>
+        <visual name="plate_front">
+          <pose>0 -2.4 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A10</name>
+          </script></material>
+        </visual>
+        <visual name="plate_rear">
+          <pose>0 2.285 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A10</name>
+          </script></material>
+        </visual>
+      </link>
+    </model>
+    <model name="car_A11">
+      <static>true</static>
+      <pose>15.750 2.500 0 0 0 3.14159</pose>
+      <link name="body">
+        <collision name="col"><pose>0 0 0.75 0 0 0</pose>
+          <geometry><box><size>2.1 4.7 1.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><mesh><uri>model://target_car/meshes/Car_silver.dae</uri><scale>1 1 1</scale></mesh></geometry>
+        </visual>
+        <visual name="plate_front">
+          <pose>0 -2.4 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A11</name>
+          </script></material>
+        </visual>
+        <visual name="plate_rear">
+          <pose>0 2.285 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A11</name>
+          </script></material>
+        </visual>
+      </link>
+    </model>
     <model name="car_A12">
       <static>true</static>
-      <pose>18.350 2.500 0 0 0 1.5708</pose>
+      <pose>18.350 2.500 0 0 0 3.14159</pose>
       <link name="body">
-        <pose>0 0 0.75 0 0 0</pose>
-        <collision name="col"><geometry><box><size>4.7 1.9 1.5</size></box></geometry></collision>
-        <visual name="body_vis">
-          <geometry><box><size>4.7 1.9 1.5</size></box></geometry>
-          <material><ambient>0.25 0.25 0.30 1</ambient><diffuse>0.30 0.30 0.42 1</diffuse></material>
+        <collision name="col"><pose>0 0 0.75 0 0 0</pose>
+          <geometry><box><size>2.1 4.7 1.5</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><mesh><uri>model://target_car/meshes/Car_yellow.dae</uri><scale>1 1 1</scale></mesh></geometry>
         </visual>
-        <visual name="plate">
-          <pose>2.36 0.0 -0.25 0 0 0</pose>
-          <geometry><box><size>0.01 0.335 0.17</size></box></geometry>
+        <visual name="plate_front">
+          <pose>0 -2.4 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/A12</name>
+          </script></material>
+        </visual>
+        <visual name="plate_rear">
+          <pose>0 2.285 0.45 0 0 0.0</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
           <material><script>
             <uri>model://target_car/materials/scripts</uri>
             <uri>model://target_car/materials/textures</uri>
@@ -651,7 +836,7 @@
       <uri>model://drc_practice_orange_jersey_barrier</uri>
       <name>lm_barrier</name>
       <static>true</static>
-      <pose>4.400 8.000 0 0 0 1.5708</pose>
+      <pose>4.400 7.000 0 0 0 1.5708</pose>
     </include>
     <include>
       <uri>model://shelf</uri>
@@ -677,5 +862,43 @@
       <static>true</static>
       <pose>16.500 5.300 0 0 0 0.0</pose>
     </include>
+
+    <!-- 동적 차량: 고정경로 진입(Iter3) — set_entity_state 로 텔레포트 -->
+    <model name="dynamic_car">
+      <pose>24.000 8.000 0 0 0 3.14159</pose>
+      <link name="body">
+        <inertial><pose>0 0 0.75 0 0 0</pose>
+          <mass>200.0</mass>
+          <inertia><ixx>111.0</ixx><iyy>405.7</iyy><izz>441.7</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+        </inertial>
+        <collision name="col"><pose>0 0 0.75 0 0 0</pose>
+          <geometry><box><size>4.7 2.1 1.5</size></box></geometry></collision>
+        <visual name="vis"><pose>0 0 0 0 0 1.5708</pose>
+          <geometry><mesh><uri>model://target_car/meshes/Car_red.dae</uri><scale>1 1 1</scale></mesh></geometry>
+        </visual>
+        <visual name="plate_front">
+          <pose>2.4 0 0.45 0 0 1.5708</pose>
+          <geometry><box><size>0.335 0.01 0.17</size></box></geometry>
+          <material><script>
+            <uri>model://target_car/materials/scripts</uri>
+            <uri>model://target_car/materials/textures</uri>
+            <name>CarPlate/DYN</name>
+          </script></material>
+        </visual>
+      </link>
+      <plugin name="dyn_car_drive" filename="libgazebo_ros_planar_move.so">
+        <ros><namespace>/dyn_car</namespace></ros>
+        <update_rate>50</update_rate>
+        <publish_rate>30</publish_rate>
+        <publish_odom>true</publish_odom>
+        <publish_odom_tf>false</publish_odom_tf>
+        <odometry_frame>dyn_car_odom</odometry_frame>
+        <robot_base_frame>dynamic_car</robot_base_frame>
+        <covariance_x>0.0</covariance_x>
+        <covariance_y>0.0</covariance_y>
+        <covariance_yaw>0.0</covariance_yaw>
+      </plugin>
+    </model>
   </world>
 </sdf>

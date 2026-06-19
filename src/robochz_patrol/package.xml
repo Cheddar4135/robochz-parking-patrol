@@ -9,6 +9,7 @@
 
   <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>          <!-- /patrol_status: Bool -->
   <depend>nav_msgs</depend>          <!-- patrol_rulebased: Odometry -->
   <depend>nav2_msgs</depend>         <!-- patrol_node(Nav2): NavigateThroughPoses -->
   <depend>tf2_ros</depend>           <!-- map_odom_calib: static TF -->
